@@ -145,16 +145,3 @@ function main() {
     }})
 }
 main();
-
-
-
-
-// Ivan.addMoney({ currency: 'RUB', amount: 100 }, (err, data) => {
-//     if (err) {
-//         console.error('Error during adding money to Ivan');
-//         } else {
-//             console.log(`Added 500000 euros to Ivan`);
-//     });
-// }
-
-//{ name: {firstName: 'Scrooge', lastName: 'McDuck'}, wallet: {amount: 36000, currency: 'NETCOIN'}, username: 'scrooge' }
