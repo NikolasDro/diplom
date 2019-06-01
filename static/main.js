@@ -10,15 +10,14 @@ class Profile {
     }
 
     createUser(callback) {
-        let username = this.username;
-		let firstName = this.name.firstName;
-		let lastName = this.name.lastName;
-        let password = this.password;
-        	
+        
         return ApiConnector.createUser({	
-            username,
-            name: { firstName, lastName },
-            password	
+            username: this.username,
+            name: { 
+                firstName: this.name.firstName,
+                lastName: this.name.lastName 
+            },
+            password: this.password	
         },	
             (err, data) => {	
                 console.log(`Creating user ${this.username}`);	
@@ -27,9 +26,8 @@ class Profile {
     }
 
     performLogin(callback) {
-		let username = this.username;
-		let password = this.password;
-		return ApiConnector.performLogin({ username, password }, (err, data) => {
+	
+		return ApiConnector.performLogin({ username: this.username, password: this.password }, (err, data) => {
 			console.log(`Authorizing user ${this.username}`);
 			callback(err, data);
         });
@@ -73,21 +71,80 @@ function getStocks(callback) {
 
 function main() {
 
-    const fedor = new Profile({
-		username: 'fedor',
-		name: { firstName: 'Fedor', lastName: 'Sumkin' },
-		password: 'myprecious'
-    });
-
     const scrooge = new Profile({
 		username: 'scrooge',
-		name: { firstName: 'Scrooge', lastName: 'McDuck'},
+		name: { firstName: 'Scrooge', lastName: 'McDuck' },
 		password: 'mydollar'
-	});
-    
-    
+    });
 
+    const fedor = new Profile({
+		username: 'fedor',
+		name: { firstName: 'Fedor', lastName: 'Sumkin'},
+		password: 'fedorpass'
+    });
+
+    getStocks((err, data) => {
+        if (err) {
+            console.log('Error to get stocks info');
+        }else{
+            let stocks = data[99];
+            console.log(stocks)
+        
+
+        scrooge.createUser((err, data) => {	
+            if (err) {	
+                console.log('Error creating user');
+            } else {
+                console.log('Scrooge is created!');
+
+                scrooge.performLogin((err, data) => {	
+                    if (err) {	
+                        console.log('Error perform login');		
+                    } else {	
+                        console.log('Scrooge is authorized!');
+
+                        scrooge.addMoney({ currency: 'EUR', amount: 500000 }, (err, data) => {
+                            if (err) {
+                                console.log('Error to add money to Scrooge');
+                            } else {
+                                console.log('Added 500000 euros to Scrooge');
+                                let targetAmount = stocks['EUR_NETCOIN'] * 500000;
+                                //console.log(`NETCOINS AMOUNT: ${targetAmount}`)
+
+                                scrooge.convertMoney({ fromCurrency: 'EUR', targetCurrency: 'NETCOIN', targetAmount: targetAmount }, (err, data) => {
+                                    if (err) {
+                                        console.log('Error during conversion');
+                                    } else {
+                                        console.log(`Converted to coins ${targetAmount}`)
+                                        
+                                        fedor.createUser( (err, data) => {
+                                            if (err) {
+                                                console.log('Error creating user');
+                                            } else {
+                                                console.log('Fedor is created!');
+                                            
+                                        
+                                                scrooge.transferMoney({ to: 'fedor', amount: 36000 }, (err, data) => {
+                                                    if (err) {
+                                                        console.log('Failed to transfer 36000 Netcoins');
+                                                    } else {
+                                                        console.log('Fedor has got 36000 NETCOINS');
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        })
+                    }
+                })
+            }
+        })
+
+    }})
 }
+main();
 
 
 
@@ -99,3 +156,5 @@ function main() {
 //             console.log(`Added 500000 euros to Ivan`);
 //     });
 // }
+
+//{ name: {firstName: 'Scrooge', lastName: 'McDuck'}, wallet: {amount: 36000, currency: 'NETCOIN'}, username: 'scrooge' }
